@@ -29,9 +29,11 @@ const Navbar = () => {
 
         {/* Navigation Links */}
         <nav
-          className={`lg:flex lg:space-x-6 absolute lg:static bg-indigo-700 lg:bg-transparent w-full lg:w-auto top-16 left-0 lg:top-auto lg:left-auto lg:opacity-100 transition-all ${
-            isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
+          className={`absolute lg:static bg-indigo-700 lg:bg-transparent w-full lg:w-auto top-16 left-0 lg:top-auto lg:left-auto transition-all ${
+            isOpen
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          } lg:opacity-100 lg:pointer-events-auto lg:flex lg:space-x-6`}
         >
           <ul className="flex flex-col lg:flex-row lg:items-center lg:space-x-6 text-center lg:text-left">
             <li>

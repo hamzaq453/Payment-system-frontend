@@ -6,19 +6,18 @@ import axios from "axios";
 const OTPVerificationPage = () => {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState(""); // Combine error and success message
   const [loading, setLoading] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
   const [showResendModal, setShowResendModal] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [resendLoading, setResendLoading] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
 
   const handleVerifyOtp = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setMessage(""); // Clear previous messages
 
     try {
       const verifyResponse = await axios.post("http://localhost:8003/verify-otp/", { email, otp });
@@ -31,11 +30,11 @@ const OTPVerificationPage = () => {
           setCheckoutUrl(checkout_url);
           window.location.href = checkout_url;
         } else {
-          setError("Something went wrong. Please try again.");
+          setMessage("Something went wrong. Please try again.");
         }
       }
     } catch {
-      setError("Invalid OTP or payment record not found.");
+      setMessage("Invalid OTP or payment record not found.");
     } finally {
       setLoading(false);
     }
@@ -43,7 +42,7 @@ const OTPVerificationPage = () => {
 
   const handleResendOtp = async () => {
     setResendLoading(true);
-    setError("");
+    setMessage(""); // Clear previous messages
 
     const resendOtpUrl = `http://localhost:8003/resend-otp/?first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}`;
 
@@ -53,17 +52,12 @@ const OTPVerificationPage = () => {
         last_name: lastName,
       });
 
-      setToastMessage("OTP sent successfully!");
-      setShowResendModal(false);
+      setMessage("OTP sent successfully!"); // Success message here
     } catch {
-      setError("Failed to resend OTP. Please check the provided details.");
+      setMessage("Failed to resend OTP. Please check the provided details.");
     } finally {
       setResendLoading(false);
     }
-  };
-
-  const closeToast = () => {
-    setToastMessage("");
   };
 
   return (
@@ -87,7 +81,7 @@ const OTPVerificationPage = () => {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 text-gray-700 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
@@ -104,7 +98,7 @@ const OTPVerificationPage = () => {
               placeholder="Enter OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 text-gray-700 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
@@ -122,17 +116,14 @@ const OTPVerificationPage = () => {
         </form>
 
         {loading && <p className="text-gray-500 mt-4">Verifying OTP, please wait...</p>}
-        {error && (
-          <div>
-            <p className="mt-4 text-red-600">{error}</p>
-            <button
-              onClick={() => setShowResendModal(true)}
-              className="mt-2 bg-gray-500 text-white rounded-md px-4 py-2 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
-            >
-              Resend OTP
-            </button>
-          </div>
-        )}
+        {message && <p className={`mt-4 ${message.includes("Invalid") ? "text-red-600" : "text-green-600"}`}>{message}</p>}
+
+        <button
+          onClick={() => setShowResendModal(true)}
+          className="mt-4 bg-gray-500 text-white rounded-md px-4 py-2 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
+        >
+          Resend OTP
+        </button>
 
         {showResendModal && (
           <div className="bg-white p-6 rounded-lg shadow-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
@@ -142,14 +133,14 @@ const OTPVerificationPage = () => {
               placeholder="Enter First Name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-full mb-4"
+              className="border text-gray-700 border-gray-300 rounded-md p-2 w-full mb-4"
             />
             <input
               type="text"
               placeholder="Enter Last Name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-full mb-4"
+              className="border text-gray-700 border-gray-300 rounded-md p-2 w-full mb-4"
             />
             <div className="flex space-x-4">
               <button
@@ -170,15 +161,6 @@ const OTPVerificationPage = () => {
                 Cancel
               </button>
             </div>
-          </div>
-        )}
-
-        {toastMessage && (
-          <div className="bg-green-500 text-white p-4 rounded-md fixed top-4 right-4 shadow-lg">
-            <p>{toastMessage}</p>
-            <button onClick={closeToast} className="text-white underline mt-2">
-              Close
-            </button>
           </div>
         )}
       </div>
